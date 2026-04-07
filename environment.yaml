@@ -1,0 +1,16 @@
+name: artistx
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pip:
+      - torch
+      - huggingface_hub
+      - pillow
+      - controlnet_aux==0.0.10
+      - diffusers
+      - transformers
+      - accelerate
+      - safetensors

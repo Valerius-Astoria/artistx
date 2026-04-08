@@ -6,7 +6,10 @@ dependencies:
   - pip
   - numpy
   - pip:
+      - --index-url https://download.pytorch.org/whl/cu128
       - torch
+      - torchvision
+      - torchaudio
       - huggingface_hub
       - pillow
       - controlnet_aux==0.0.10

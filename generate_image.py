@@ -118,24 +118,24 @@ def generate_image(
 
 def main():
     generate_image(
-       name="mountain.jpeg",
-       lora_name=None,
+       name="snowy_church.jpg",
+       lora_name="vincent_van_gogh_arles.safetensors",
        width=512,
        height=512,
        prompt="""
-       A breathtaking snow-covered mountain landscape with skiers gliding down the slopes 
-       under a clear blue sky, 
-       ultra-detailed, cinematic lighting, realistic style
+       a painting of a field of yellow flowers
+       oil painting
+       vincent_van_gogh_arles style
        """,
        num_inference_steps=30,
-       guidance_scale=7.5,
+       guidance_scale=6,
        negative_prompt="""
-       blurry, lowres, worst quality, bad anatomy, deformed, extra limbs, missing limbs, text, watermark, logo, cartoon, anime, oversaturated
-       """,
+        modern buildings, bright saturated colors, cartoon, anime, photorealistic, low detail, blurry, text, watermark, logo, oversharpen, distorted perspective
+        """,
        num_images_per_prompt=1,
-       controlnet_conditioning_scale=0.5,
+       controlnet_conditioning_scale=0.6,
        guess_mode=True,
-       lora_scale=0.8
+       lora_scale=0.6
     )
 
 

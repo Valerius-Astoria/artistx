@@ -61,7 +61,7 @@ def generate_image(
     image = load_image(
         f"{input_image_dir}/{name}"
     )
-    image = image.resize((width, height)) # 将输入图像缩放至指定尺寸
+    # image = image.resize((width, height)) # 将输入图像缩放至指定尺寸
 
     # 加载线稿检测模型
     processor = LineartDetector.from_pretrained("lllyasviel/Annotators")
@@ -118,23 +118,25 @@ def generate_image(
 
 def main():
     generate_image(
-       name="mountain.jpeg",
-       lora_name="vincent_van_gogh_watercolors.safetensors",
+       name="megan fox.png",
+       lora_name="loish_artwork.safetensors",
     #    lora_name=None,
-       width=512,
-       height=512,
+       width=470,
+       height=570,
        prompt="""
-       a snowy mountain, high detail, sharp focus, concept art
+       a painting of a beautiful classical woman
+       a loish style digital painting
+       digital art, concept art
        """,
-       num_inference_steps=30,
+       num_inference_steps=45,
        guidance_scale=6,
        negative_prompt="""
-       photorealistic, 3d render, anime, cartoon, lowres, blurry, pixelated,
+       owres, blurry, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
        """,
-       num_images_per_prompt=3,
-       controlnet_conditioning_scale=0.6,
+       num_images_per_prompt=1,
+       controlnet_conditioning_scale=0.8,
        guess_mode=False,
-       lora_scale=0.6
+       lora_scale=0.8
     )
 
 

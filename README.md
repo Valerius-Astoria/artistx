@@ -17,3 +17,21 @@ CPU & GPU配置说明：
 - 优先使用GPU，在GPU不可用时使用CPU
 - GPU图像生成时间约4s，CPU图像生成时间约7min
 - 为避免 PyTorch 的 CUDA 运行版本高于当前驱动可支持的版本，将 PyTorch 的 CUDA 版本调整为12.8。你可以根据你的机器实际支持的 CUDA 版本在 environment.yaml 中进行调整
+
+模型使用说明：
+- loish style：
+    - 适合生成女性主题
+    - prompt="""
+       a painting of a beautiful classical woman
+       a loish style digital painting
+       digital art, concept art
+       """,
+    - num_inference_steps=45,
+    - guidance_scale=6,
+    - negative_prompt="""
+       owres, blurry, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
+       """,
+    - num_images_per_prompt=1,
+    - controlnet_conditioning_scale=0.8,
+    - guess_mode=False,
+    - lora_scale=0.8

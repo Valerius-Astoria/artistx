@@ -18,9 +18,11 @@ from diffusers import (
 input_image_dir = "data/input_images"
 sketches_dir = "data/sketches"
 generated_images_dir = "data/generated_images"
+lora_dir = "LoRAs"
 
 def generate_image(
     name: str,
+    lora_name: str,
     width: int,
     height: int,
     prompt: str,
@@ -31,9 +33,11 @@ def generate_image(
     num_images_per_prompt: int = 1,
     controlnet_conditioning_scale: float = 1.0,
     guess_mode: bool = False,
+    lora_scale: float = 0.8,
 ):
     """
     name: 输入图像名称(含后缀)
+    lora_name: LoRA 权重文件名称
     width: 生成图像宽度
     height: 生成图像高度
     prompt: 生成图像提示词
@@ -44,6 +48,7 @@ def generate_image(
     num_images_per_prompt: 生成图像数量
     controlnet_conditioning_scale: 线稿引导强度
     guess_mode: 是否使用猜测模式
+    lora_scale: LoRA 引导强度
     """
     # 使用 Controlnet Lineart 模型，具体请参考“https://github.com/lllyasviel/ControlNet-v1-1-nightly”
     checkpoint = "ControlNet-1-1-preview/control_v11p_sd15_lineart"
@@ -73,6 +78,10 @@ def generate_image(
         "runwayml/stable-diffusion-v1-5", controlnet=controlnet, torch_dtype=dtype
     )
 
+    # 仅当 lora_dir 和 lora_name 都提供时才加载 LoRA
+    if lora_dir and lora_name:
+        pipe.load_lora_weights(lora_dir, weight_name=lora_name)
+
     # 设置调度器
     pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
 
@@ -92,17 +101,29 @@ def generate_image(
     generator = torch.manual_seed(seed) 
 
     # 生成图像
-    images = pipe(prompt, image=control_image, height=height, width=width, num_inference_steps=num_inference_steps, guidance_scale=guidance_scale, negative_prompt=negative_prompt, num_images_per_prompt=num_images_per_prompt, generator=generator, controlnet_conditioning_scale=controlnet_conditioning_scale, guess_mode=guess_mode).images
+    images = pipe(prompt, 
+    image=control_image, 
+    height=height, 
+    width=width, 
+    num_inference_steps=num_inference_steps, 
+    guidance_scale=guidance_scale, 
+    negative_prompt=negative_prompt, 
+    num_images_per_prompt=num_images_per_prompt, 
+    generator=generator, 
+    controlnet_conditioning_scale=controlnet_conditioning_scale, 
+    guess_mode=guess_mode,
+    cross_attention_kwargs={"scale": lora_scale} if lora_name else None,).images
 
     # 将生成图像随机命名后保存至generated_images文件夹 
     for image in images:
-    random_name = f"{uuid.uuid4().hex}.png"
-    image.save(f"{generated_images_dir}/{random_name}")
+        random_name = f"{uuid.uuid4().hex}.png"
+        image.save(f"{generated_images_dir}/{random_name}")
 
 
 def main():
     generate_image(
        name="mountain.jpeg",
+       lora_name=None,
        width=512,
        height=512,
        prompt="A breathtaking snow-covered mountain landscape with skiers gliding down the slopes under a clear blue sky, ultra-detailed, cinematic lighting, realistic style",
@@ -111,7 +132,8 @@ def main():
        negative_prompt="blurry, lowres, worst quality, bad anatomy, deformed, extra limbs, missing limbs, text, watermark, logo, cartoon, anime, oversaturated",
        num_images_per_prompt=1,
        controlnet_conditioning_scale=0.5,
-       guess_mode=True
+       guess_mode=True,
+       lora_scale=0.8
     )
 
 

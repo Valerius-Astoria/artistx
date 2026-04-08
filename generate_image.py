@@ -118,23 +118,22 @@ def generate_image(
 
 def main():
     generate_image(
-       name="snowy_church.jpg",
-       lora_name="vincent_van_gogh_arles.safetensors",
+       name="mountain.jpeg",
+       lora_name="vincent_van_gogh_watercolors.safetensors",
+    #    lora_name=None,
        width=512,
        height=512,
        prompt="""
-       a painting of a field of yellow flowers
-       oil painting
-       vincent_van_gogh_arles style
+       a snowy mountain, high detail, sharp focus, concept art
        """,
        num_inference_steps=30,
        guidance_scale=6,
        negative_prompt="""
-        modern buildings, bright saturated colors, cartoon, anime, photorealistic, low detail, blurry, text, watermark, logo, oversharpen, distorted perspective
-        """,
-       num_images_per_prompt=1,
+       photorealistic, 3d render, anime, cartoon, lowres, blurry, pixelated,
+       """,
+       num_images_per_prompt=3,
        controlnet_conditioning_scale=0.6,
-       guess_mode=True,
+       guess_mode=False,
        lora_scale=0.6
     )
 

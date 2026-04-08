@@ -1,7 +1,5 @@
-data/generated_images/*
-data/sketches/*
-data/input_images*
+# data/generated_images/*
+# data/sketches/*
+# data/input_images*
 kohya_ss/
-LoRA_training_images/
-LoRAs/
 __pycache__/

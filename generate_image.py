@@ -118,20 +118,20 @@ def generate_image(
 
 def main():
     generate_image(
-       name="megan fox.png",
+       name="portrait oil painting woman.jpg",
        lora_name="loish_artwork.safetensors",
     #    lora_name=None,
-       width=470,
-       height=570,
+       width=800,
+       height=1000,
        prompt="""
-       a painting of a beautiful classical woman
+       a painting of a beautiful and attractive woman
        a loish style digital painting
        digital art, concept art
        """,
        num_inference_steps=45,
        guidance_scale=6,
        negative_prompt="""
-       owres, blurry, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
+       owres, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
        """,
        num_images_per_prompt=1,
        controlnet_conditioning_scale=0.8,

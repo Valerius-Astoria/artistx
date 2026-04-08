@@ -18,7 +18,7 @@ from diffusers import (
 input_image_dir = "data/input_images"
 sketches_dir = "data/sketches"
 generated_images_dir = "data/generated_images"
-lora_dir = "LoRAs"
+lora_dir = "loras"
 
 def generate_image(
     name: str,
@@ -85,14 +85,10 @@ def generate_image(
     # 设置调度器
     pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
 
-    # 如果GPU可用，则尝试使用模型CPU卸载功能，如果失败，则将模型保持在GPU上（可能是因为accelerate库未安装）
+    # 如果GPU可用，则将模型固定在GPU上，确保推理走CUDA
     if device == "cuda":
-        try:
-            pipe.enable_model_cpu_offload()
-        except RuntimeError:
-            # 如果accelerate库未安装，则将模型保持在GPU上
-            pipe = pipe.to("cuda")
-    # 如果CPU可用，则将模型保持在CPU上
+        pipe = pipe.to("cuda")
+    # 如果GPU不可用，则将模型保持在CPU上
     else:
         pipe = pipe.to("cpu")
 
@@ -126,10 +122,16 @@ def main():
        lora_name=None,
        width=512,
        height=512,
-       prompt="A breathtaking snow-covered mountain landscape with skiers gliding down the slopes under a clear blue sky, ultra-detailed, cinematic lighting, realistic style",
+       prompt="""
+       A breathtaking snow-covered mountain landscape with skiers gliding down the slopes 
+       under a clear blue sky, 
+       ultra-detailed, cinematic lighting, realistic style
+       """,
        num_inference_steps=30,
        guidance_scale=7.5,
-       negative_prompt="blurry, lowres, worst quality, bad anatomy, deformed, extra limbs, missing limbs, text, watermark, logo, cartoon, anime, oversaturated",
+       negative_prompt="""
+       blurry, lowres, worst quality, bad anatomy, deformed, extra limbs, missing limbs, text, watermark, logo, cartoon, anime, oversaturated
+       """,
        num_images_per_prompt=1,
        controlnet_conditioning_scale=0.5,
        guess_mode=True,

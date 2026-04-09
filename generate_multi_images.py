@@ -28,7 +28,7 @@ def main():
             negative_prompt=negative_prompt,
             num_images_per_prompt=1,
             controlnet_conditioning_scale=0.8,
-            guess_mode=False,
+            guess_mode=True,
             lora_scale=0.8,
         )
 

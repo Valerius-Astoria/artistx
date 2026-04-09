@@ -35,3 +35,37 @@ CPU & GPU配置说明：
     - controlnet_conditioning_scale=0.8,
     - guess_mode=False,
     - lora_scale=0.8
+
+    - 更新：
+    - 使用 loishstyle 作为风格触发词
+    - 模版1（保守版）：
+      - prompt="""
+       a beautiful woman
+       loishstyle
+       high detail
+       """,
+      - num_inference_steps=30,
+      - guidance_scale=6,
+      - negative_prompt="""
+       owres, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
+       """,
+      - num_images_per_prompt=1,
+      - controlnet_conditioning_scale=0.8,
+      - guess_mode=False,
+      - lora_scale=0.8
+    - 模版2（偏向loish style）：
+      - prompt="""
+       a beautiful woman
+       digital art, concept art
+       loishstyle
+       high detail
+       """,
+      - num_inference_steps=30,
+      - guidance_scale=3,
+      - negative_prompt="""
+       owres, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
+       """,
+      - num_images_per_prompt=1,
+      - controlnet_conditioning_scale=0.8,
+      - guess_mode=False,
+      - lora_scale=0.8

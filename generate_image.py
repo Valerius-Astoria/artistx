@@ -20,35 +20,12 @@ sketches_dir = "data/sketches"
 generated_images_dir = "data/generated_images"
 lora_dir = "loras"
 
-def generate_image(
-    name: str,
-    lora_name: str,
-    width: int,
-    height: int,
-    prompt: str,
-    seed: int = None,
-    num_inference_steps: int = 30,
-    guidance_scale: float = 7.5,
-    negative_prompt: str = None,
-    num_images_per_prompt: int = 1,
-    controlnet_conditioning_scale: float = 1.0,
-    guess_mode: bool = False,
-    lora_scale: float = 0.8,
-):
+_MODEL_CACHE = {}
+
+
+def load_model(lora_name: str = None):
     """
-    name: 输入图像名称(含后缀)
-    lora_name: LoRA 权重文件名称
-    width: 生成图像宽度
-    height: 生成图像高度
-    prompt: 生成图像提示词
-    seed: 随机种子
-    num_inference_steps: 生成图像步数
-    guidance_scale: 文字引导强度
-    negative_prompt: 负向提示词
-    num_images_per_prompt: 生成图像数量
-    controlnet_conditioning_scale: 线稿引导强度
-    guess_mode: 是否使用猜测模式
-    lora_scale: LoRA 引导强度
+    加载并缓存 Lineart 处理器与 SD+ControlNet pipeline，避免重复加载模型。
     """
     # 使用 Controlnet Lineart 模型，具体请参考“https://github.com/lllyasviel/ControlNet-v1-1-nightly”
     checkpoint = "ControlNet-1-1-preview/control_v11p_sd15_lineart"
@@ -56,19 +33,13 @@ def generate_image(
     # 优先使用GPU运行，如GPU不可用，则自动切换至CPU运行
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
+    cache_key = (device, str(dtype), lora_name or "")
 
-    # 加载输入图像
-    image = load_image(
-        f"{input_image_dir}/{name}"
-    )
-    # image = image.resize((width, height)) # 将输入图像缩放至指定尺寸
+    if cache_key in _MODEL_CACHE:
+        return _MODEL_CACHE[cache_key]
 
     # 加载线稿检测模型
     processor = LineartDetector.from_pretrained("lllyasviel/Annotators")
-
-    # 生成线稿
-    control_image = processor(image)
-    control_image.save(f"{sketches_dir}/control_{name}") # 保存线稿至sketches文件夹
 
     # 加载ControlNet模型
     controlnet = ControlNetModel.from_pretrained(checkpoint, torch_dtype=dtype)
@@ -92,6 +63,49 @@ def generate_image(
     else:
         pipe = pipe.to("cpu")
 
+    _MODEL_CACHE[cache_key] = (processor, pipe, device)
+    return _MODEL_CACHE[cache_key]
+
+def generate_image(
+    name: str,
+    lora_name: str,
+    prompt: str,
+    seed: int = None,
+    num_inference_steps: int = 30,
+    guidance_scale: float = 7.5,
+    negative_prompt: str = None,
+    num_images_per_prompt: int = 1,
+    controlnet_conditioning_scale: float = 1.0,
+    guess_mode: bool = False,
+    lora_scale: float = 0.8,
+):
+    """
+    name: 输入图像名称(含后缀)
+    lora_name: LoRA 权重文件名称
+    prompt: 生成图像提示词
+    seed: 随机种子
+    num_inference_steps: 生成图像步数
+    guidance_scale: 文字引导强度
+    negative_prompt: 负向提示词
+    num_images_per_prompt: 生成图像数量
+    controlnet_conditioning_scale: 线稿引导强度
+    guess_mode: 是否使用猜测模式
+    lora_scale: LoRA 引导强度
+    """
+    # 复用已加载模型，避免重复初始化
+    processor, pipe, device = load_model(lora_name=lora_name)
+
+    # 加载输入图像
+    image = load_image(
+        f"{input_image_dir}/{name}"
+    )
+    # image = image.resize((width, height)) # 将输入图像缩放至指定尺寸
+
+    # 生成线稿
+    control_image = processor(image)
+    control_image.save(f"{sketches_dir}/control_{name}") # 保存线稿至sketches文件夹
+    sketch_width, sketch_height = control_image.size
+
     # 设置随机种子
     seed = seed if seed is not None else np.random.randint(0, 1000000)
     generator = torch.manual_seed(seed) 
@@ -99,8 +113,8 @@ def generate_image(
     # 生成图像
     images = pipe(prompt, 
     image=control_image, 
-    height=height, 
-    width=width, 
+    height=sketch_height,
+    width=sketch_width,
     num_inference_steps=num_inference_steps, 
     guidance_scale=guidance_scale, 
     negative_prompt=negative_prompt, 
@@ -118,18 +132,16 @@ def generate_image(
 
 def main():
     generate_image(
-       name="portrait oil painting woman.jpg",
-       lora_name="loish_artwork.safetensors",
-    #    lora_name=None,
-       width=800,
-       height=1000,
+       name="megan fox.png",
+       lora_name="loish_style.safetensors",
        prompt="""
-       a painting of a beautiful and attractive woman
-       a loish style digital painting
+       a beautiful woman
        digital art, concept art
+       loishstyle
+       high detail
        """,
-       num_inference_steps=45,
-       guidance_scale=6,
+       num_inference_steps=30,
+       guidance_scale=2,
        negative_prompt="""
        owres, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
        """,

@@ -20,46 +20,13 @@ CPU & GPU配置说明：
 
 模型使用说明：
 - loish style：
-    - 适合生成女性主题
-    - prompt="""
-       a painting of a beautiful classical woman
-       a loish style digital painting
-       digital art, concept art
-       """,
-    - num_inference_steps=45,
-    - guidance_scale=6,
-    - negative_prompt="""
-       owres, blurry, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
-       """,
-    - num_images_per_prompt=1,
-    - controlnet_conditioning_scale=0.8,
-    - guess_mode=False,
-    - lora_scale=0.8
-
-    - 更新：
-    - 使用 loishstyle 作为风格触发词
-    - 模版1（保守版）：
-      - prompt="""
-       a beautiful woman
-       loishstyle
-       high detail
-       """,
-      - num_inference_steps=30,
-      - guidance_scale=6,
-      - negative_prompt="""
-       owres, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
-       """,
-      - num_images_per_prompt=1,
-      - controlnet_conditioning_scale=0.8,
-      - guess_mode=False,
-      - lora_scale=0.8
-    - 模版2（偏向loish style）：
-      - prompt="""
-       a beautiful woman
-       digital art, concept art
-       loishstyle
-       high detail
-       """,
+   - Magic World: 
+      - 偏向 loish style: a beautiful woman, digital art, concept art, loishstyle, high detail
+      - 在此基础上偏向厚涂与虚幻风格：painting
+   
+   - Seed: 51717、411936
+    
+   - 参数设置：
       - num_inference_steps=30,
       - guidance_scale=3,
       - negative_prompt="""

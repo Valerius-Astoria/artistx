@@ -129,6 +129,9 @@ def generate_image(
         random_name = f"{uuid.uuid4().hex}.png"
         image.save(f"{generated_images_dir}/{random_name}")
 
+    # 打印每张图像对应的随机种子
+    print(f"{seed}: {random_name}")
+
 
 def main():
     generate_image(

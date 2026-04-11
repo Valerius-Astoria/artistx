@@ -2,13 +2,13 @@ from generate_image import load_model, generate_image
 
 
 def main():
-    image_name = "michal sawtyruk car.jpeg"
-    lora_name = "michal_sawtyruk_style.safetensors"
+    image_name = "006_Via_Mazanti._Verona._by_Neil_Ross_elEm9Z_1.jpg"
+    lora_name = "neil_ross_style.safetensors"
     prompt = """
-    michal_sawtyruk_style a retro blue sedan parked on a wet street, colorful modern buildings, evening city scene, cinematic lighting, digital painting
+    neil_ross_style sunlit narrow Verona street, old Italian facades, cafe umbrellas, painterly urban scene, warm shadows
     """
     negative_prompt = """
-    lowres, blurry, bad anatomy, distorted car, extra wheels, text, watermark, logo
+    lowres, blurry, worst quality, normal quality, jpeg artifacts, text, watermark, logo, oversharpen, overexposed, underexposed, distorted buildings, warped perspective, deformed people, noisy
     """
     # 先加载模型，后续生成会复用缓存
     load_model(lora_name=lora_name)
@@ -19,7 +19,7 @@ def main():
             lora_name=lora_name,
             prompt=prompt,
             seed=None,
-            num_inference_steps=45,
+            num_inference_steps=60,
             guidance_scale=2,
             negative_prompt=negative_prompt,
             num_images_per_prompt=1,

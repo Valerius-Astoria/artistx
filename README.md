@@ -21,7 +21,7 @@ CPU & GPU配置说明：
 模型使用说明：
 - loish style：
    - Magic World: 
-      - 偏向 loish style: a beautiful woman, digital art, concept art, loishstyle, high detail
+      - 偏向 loish style: digital art, concept art, neil_ross_style, high detail,
       - 在此基础上偏向厚涂与虚幻风格：painting
    
    - Seed: 51717、411936
@@ -32,6 +32,25 @@ CPU & GPU配置说明：
       - negative_prompt="""
        owres, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
        """,
+      - num_images_per_prompt=1,
+      - controlnet_conditioning_scale=0.8,
+      - guess_mode=False,
+      - lora_scale=0.8
+
+- neil ross style：
+   - Magic World: 
+      - 偏向 neil ross style: [scene discription], digital art, concept art, neil_ross_style, high detail
+      - 在此基础上偏向厚涂与虚幻风格：painting
+
+   - Seed: 
+      
+   - 参数设置：
+      - num_inference_steps=30,
+      - guidance_scale=3,
+      - negative_prompt="""
+         blurry, lowres, noisy, jpeg artifacts, watermark, text, logo, cropped, out of frame, duplicate objects, bad anatomy, bad hands, 
+         extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
+         """,
       - num_images_per_prompt=1,
       - controlnet_conditioning_scale=0.8,
       - guess_mode=False,

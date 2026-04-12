@@ -64,7 +64,30 @@ http://127.0.0.1:7860
 
 ---
 
-## 4. 脚本方式生成
+## 4. LoRA 权重下载与放置（GitHub Release）
+
+为避免超出 GitHub 单文件大小限制，仓库**不直接包含** `loras/*.safetensors`。  
+请先从项目的 GitHub Release 下载 LoRA 压缩包，再解压到 `loras/` 目录。
+
+推荐流程：
+
+1. 打开本项目 Releases 页面并下载 LoRA 压缩包（例如 `loras.zip`）
+2. 在项目根目录解压：
+
+```bash
+unzip loras.zip -d .
+```
+
+3. 确认权重文件位于以下路径：
+   - `loras/loish_style.safetensors`
+   - `loras/michal_sawtyruk_style.safetensors`
+   - `loras/neil_ross_style.safetensors`
+
+4. 再启动 Web UI 或脚本进行生成
+
+---
+
+## 5. 脚本方式生成
 
 你也可以直接修改 `generate_images.py` 中 `main()` 的参数后运行：
 
@@ -76,7 +99,7 @@ python generate_images.py
 
 ---
 
-## 5. 运行与性能说明
+## 6. 运行与性能说明
 
 - 优先使用 GPU；若无 GPU 会自动回退到 CPU
 - 速度参考：
@@ -86,11 +109,11 @@ python generate_images.py
 
 ---
 
-## 6. LoRA 使用建议
+## 7. LoRA 使用建议
 
 以下为当前项目中验证过的推荐参数起点，可按效果微调。
 
-### 6.1 Loish Style
+### 7.1 Loish Style
 
 - Prompt 倾向：`loish style, woman, digital art, concept art, high detail`
 - 可增加风格词：`painting`（偏厚涂、偏奇幻）
@@ -104,7 +127,7 @@ python generate_images.py
   - `guess_mode=False`
   - `lora_scale=0.8`
 
-### 6.2 Neil Ross Style
+### 7.2 Neil Ross Style
 
 - Prompt 倾向：`neil_ross_style, [scene description], digital art, concept art, neil_ross_style, high detail`
 - 可增加风格词：`painting`
@@ -116,7 +139,7 @@ python generate_images.py
   - `guess_mode=False`
   - `lora_scale=0.8`
 
-### 6.3 Michal Sawtyruk Style
+### 7.3 Michal Sawtyruk Style
 
 - Prompt 倾向：`michal_sawtyruk_style, [scene description]`
 - 推荐参数：
@@ -129,7 +152,7 @@ python generate_images.py
 
 ---
 
-## 7. LoRA 训练参考
+## 8. LoRA 训练参考
 
 - [kohya_ss](https://github.com/bmaltais/kohya_ss)
 - [How to train Stable Diffusion LoRA models](https://techtactician.com/how-to-train-stable-diffusion-lora-models/)

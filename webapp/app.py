@@ -89,10 +89,10 @@ def _parse_form_data() -> GenerationForm:
         num=int(request.form.get("num", 1)),
         seed=seed,
         num_inference_steps=int(request.form.get("num_inference_steps", 30)),
-        guidance_scale=float(request.form.get("guidance_scale", 7.5)),
+        guidance_scale=float(request.form.get("guidance_scale", 2)),
         num_images_per_prompt=int(request.form.get("num_images_per_prompt", 1)),
         controlnet_conditioning_scale=float(
-            request.form.get("controlnet_conditioning_scale", 1.0)
+            request.form.get("controlnet_conditioning_scale", 0.8)
         ),
         guess_mode=request.form.get("guess_mode") == "on",
         lora_scale=float(request.form.get("lora_scale", 0.8)),
@@ -166,9 +166,9 @@ def index() -> str:
         "num": 1,
         "seed": "",
         "num_inference_steps": 30,
-        "guidance_scale": 7.5,
+        "guidance_scale": 2,
         "num_images_per_prompt": 1,
-        "controlnet_conditioning_scale": 1.0,
+        "controlnet_conditioning_scale": 0.8,
         "guess_mode": False,
         "lora_scale": 0.8,
         "lora_name": lora_options[0] if lora_options else "",

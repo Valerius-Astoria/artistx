@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ArtistX Studio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-badge">ArtistX</div>
+        <h1>LoRA Art Generation Studio</h1>
+        <p>
+          A clean, gallery-first interface inspired by modern creative tools.
+          Upload your image, tune generation values, pick a style, and download
+          your outputs.
+        </p>
+      </header>
+
+      <section class="panel">
+        <h2>Style Showcase</h2>
+        <div class="showcase-grid">
+          {% for item in showcase %}
+          <article class="card">
+            <div class="preview">
+              {% if item.exists %}
+              <img
+                src="{{ url_for('serve_generated', filename=item.image) }}"
+                alt="{{ item.title }} sample"
+              />
+              {% else %}
+              <div class="missing">Sample image not found</div>
+              {% endif %}
+            </div>
+            <h3>{{ item.title }}</h3>
+            <p class="placeholder">{{ item.placeholder }}</p>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Create New Images</h2>
+        {% if message %}
+        <div class="alert success">{{ message }}</div>
+        {% endif %}
+        {% if error %}
+        <div class="alert error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="form-grid">
+          <label>
+            Upload source image
+            <input type="file" name="input_image" accept="image/*" required />
+          </label>
+
+          <label>
+            LoRA style
+            <select name="lora_name" required>
+              {% for option in lora_options %}
+              <option value="{{ option }}" {% if form.lora_name == option %}selected{% endif %}>
+                {{ option }}
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+
+          <label class="full">
+            Prompt
+            <textarea name="prompt" rows="4" required>{{ form.prompt }}</textarea>
+          </label>
+
+          <label class="full">
+            Negative prompt
+            <textarea name="negative_prompt" rows="3">{{ form.negative_prompt }}</textarea>
+          </label>
+
+          <label>
+            Num (loop count)
+            <input type="number" name="num" min="1" value="{{ form.num }}" required />
+          </label>
+
+          <label>
+            Seed (optional)
+            <input type="number" name="seed" value="{{ form.seed }}" />
+          </label>
+
+          <label>
+            Inference steps
+            <input type="number" name="num_inference_steps" min="1" value="{{ form.num_inference_steps }}" required />
+          </label>
+
+          <label>
+            Guidance scale
+            <input type="number" name="guidance_scale" min="0" step="0.1" value="{{ form.guidance_scale }}" required />
+          </label>
+
+          <label>
+            Images per prompt
+            <input type="number" name="num_images_per_prompt" min="1" value="{{ form.num_images_per_prompt }}" required />
+          </label>
+
+          <label>
+            Control conditioning scale
+            <input
+              type="number"
+              name="controlnet_conditioning_scale"
+              min="0"
+              step="0.1"
+              value="{{ form.controlnet_conditioning_scale }}"
+              required
+            />
+          </label>
+
+          <label>
+            LoRA scale
+            <input type="number" name="lora_scale" min="0" step="0.1" value="{{ form.lora_scale }}" required />
+          </label>
+
+          <label class="checkbox">
+            <input type="checkbox" name="guess_mode" {% if form.guess_mode %}checked{% endif %} />
+            Enable guess mode
+          </label>
+
+          <div class="full">
+            <button type="submit">Generate</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Latest Outputs</h2>
+        {% if generated_now %}
+        <div class="new-banner">
+          Newly generated:
+          {% for file in generated_now %}
+          <a href="{{ url_for('download_generated', filename=file) }}">{{ file }}</a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="gallery-grid">
+          {% for file in gallery_images %}
+          <article class="gallery-item">
+            <img src="{{ url_for('serve_generated', filename=file) }}" alt="{{ file }}" />
+            <div class="gallery-meta">
+              <span>{{ file }}</span>
+              <a href="{{ url_for('download_generated', filename=file) }}">Download</a>
+            </div>
+          </article>
+          {% endfor %}
+          {% if not gallery_images %}
+          <p>No generated images yet.</p>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </body>
+  </html>

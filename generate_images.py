@@ -7,15 +7,33 @@ from controlnet_aux import LineartDetector
 from diffusers import ControlNetModel, StableDiffusionControlNetPipeline, UniPCMultistepScheduler
 from diffusers.utils import load_image
 
-input_image_dir = "data/input_images"
-sketches_dir = "data/sketches"
-generated_images_dir = "data/generated_images"
-lora_dir = "loras"
+BASE_DIR = Path(__file__).resolve().parent
+input_image_dir = BASE_DIR / "data" / "input_images"
+sketches_dir = BASE_DIR / "data" / "sketches"
+generated_images_dir = BASE_DIR / "data" / "generated_images"
+lora_dir = BASE_DIR / "loras"
 
 _MODEL_CACHE: dict[tuple[str, str, str], tuple[LineartDetector, StableDiffusionControlNetPipeline, str]] = {}
 
 
-def load_model(lora_name: str = None):
+def _resolve_lora_path(lora_name: str) -> Path:
+    normalized = lora_name.strip()
+    if not normalized:
+        raise ValueError(
+            "LoRA file name is required. Put your .safetensors file in loras/ and set lora_name in main()."
+        )
+
+    lora_path = lora_dir / normalized
+    if not lora_path.exists():
+        raise FileNotFoundError(f"LoRA file not found: {lora_path}")
+
+    if lora_path.suffix.lower() != ".safetensors":
+        raise ValueError(f"LoRA file must be a .safetensors file: {lora_path.name}")
+
+    return lora_path
+
+
+def load_model(lora_name: str):
     """
     加载并缓存 Lineart 处理器与 SD+ControlNet pipeline，避免重复加载模型。
     """
@@ -25,7 +43,8 @@ def load_model(lora_name: str = None):
     # 优先使用GPU运行，如GPU不可用，则自动切换至CPU运行
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
-    cache_key = (device, str(dtype), lora_name or "")
+    lora_path = _resolve_lora_path(lora_name)
+    cache_key = (device, str(dtype), lora_path.name)
 
     if cache_key in _MODEL_CACHE:
         return _MODEL_CACHE[cache_key]
@@ -49,12 +68,8 @@ def load_model(lora_name: str = None):
         low_cpu_mem_usage=False,
     )
 
-    # 仅当 lora_dir 和 lora_name 都提供时才加载 LoRA
-    if lora_dir and lora_name:
-        lora_path = Path(lora_dir) / lora_name
-        if not lora_path.exists():
-            raise FileNotFoundError(f"LoRA file not found: {lora_path}")
-        pipe.load_lora_weights(lora_dir, weight_name=lora_name)
+    # 加载 LoRA
+    pipe.load_lora_weights(str(lora_dir), weight_name=lora_path.name)
 
     # 设置调度器
     pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
@@ -99,14 +114,12 @@ def _generate_images_once(
     processor, pipe, device = load_model(lora_name=lora_name)
 
     # 加载输入图像
-    image = load_image(
-        f"{input_image_dir}/{name}"
-    )
+    image = load_image(str(input_image_dir / name))
     # image = image.resize((width, height)) # 将输入图像缩放至指定尺寸
 
     # 生成线稿
     control_image = processor(image)
-    control_image.save(f"{sketches_dir}/control_{name}") # 保存线稿至sketches文件夹
+    control_image.save(str(sketches_dir / f"control_{name}")) # 保存线稿至sketches文件夹
     sketch_width, sketch_height = control_image.size
 
     # 设置随机种子
@@ -125,13 +138,13 @@ def _generate_images_once(
     generator=generator, 
     controlnet_conditioning_scale=controlnet_conditioning_scale, 
     guess_mode=guess_mode,
-    cross_attention_kwargs={"scale": lora_scale} if lora_name else None,).images
+    cross_attention_kwargs={"scale": lora_scale},).images
 
     # 将生成图像随机命名后保存至generated_images文件夹 
     saved_files: list[str] = []
     for image in images:
         random_name = f"{uuid.uuid4().hex}.png"
-        image.save(f"{generated_images_dir}/{random_name}")
+        image.save(str(generated_images_dir / random_name))
         saved_files.append(random_name)
 
     # 打印每张图像对应的随机种子
@@ -166,8 +179,9 @@ def generate_images(
     guess_mode: 是否使用猜测模式
     lora_scale: LoRA 引导强度
     """
-    Path(sketches_dir).mkdir(parents=True, exist_ok=True)
-    Path(generated_images_dir).mkdir(parents=True, exist_ok=True)
+    _resolve_lora_path(lora_name)
+    sketches_dir.mkdir(parents=True, exist_ok=True)
+    generated_images_dir.mkdir(parents=True, exist_ok=True)
 
     for _ in range(num):
         # seed 为空时，每轮随机一个新的 seed；seed 有值时固定使用该 seed（可复现）
@@ -187,25 +201,22 @@ def generate_images(
         )
         
 def main():
+    # 必须先将你的 LoRA 权重文件放到 loras/ 目录，再填写下面的参数。
     generate_images(
         num=5,
         name="megan fox.png",
-        lora_name="loish_style.safetensors",
-        prompt="""
-        a beautiful woman
-        digital art, concept art
-        loishstyle
-        high detail
-        """,
+        # TODO: Fill your LoRA file name in loras/, e.g. "your_style.safetensors"
+        lora_name="",
+        # TODO: Fill your prompt
+        prompt="",
         num_inference_steps=30,
         guidance_scale=2,
-        negative_prompt="""
-        owres, bad anatomy, bad hands, extra fingers, deformed face, asymmetrical eyes, distorted, oversaturated, overexposed
-        """,
+        # TODO: Fill your negative prompt
+        negative_prompt="",
         num_images_per_prompt=1,
         controlnet_conditioning_scale=0.8,
         guess_mode=False,
-        lora_scale=0.8
+        lora_scale=0.8,
     )
 
 

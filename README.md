@@ -3,10 +3,34 @@
 基于 Stable Diffusion v1.5 + ControlNet Lineart + LoRA 的风格化图像生成项目。  
 你可以上传原图，选择 LoRA 风格，并快速生成具有特定艺术风格的结果。
 
+> 开始前必做：先将你自己的 LoRA 文件（`.safetensors`）放入 `loras/` 目录，再到 `generate_images.py` 的 `main()` 中修改 `lora_name` 与提示词参数。
+>
+> 重要：本项目基座模型为 `Stable Diffusion v1.5`，你使用的 LoRA 必须与 `SD v1.5` 适配，否则可能出现风格失效、画面异常或生成失败。
+
 项目提供：
 - 脚本方式生成（`generate_images.py`）
 - 本地 Web UI 交互生成（`run_web.py`）
-- 3 种 LoRA 风格示例（Loish / Michal Sawtyruk / Neil Ross）
+- LoRA 条件生成示例流程
+
+## 效果展示（3组：1张原图 + 3张生成图）
+
+### 组 1
+
+| 原图 | 生成图 1 | 生成图 2 | 生成图 3 |
+| --- | --- | --- | --- |
+| ![](assets/showcase/megan_original_resized.png) | ![](assets/showcase/megan_generated_1.png) | ![](assets/showcase/megan_generated_2.png) | ![](assets/showcase/megan_generated_3.png) |
+
+### 组 2
+
+| 原图 | 生成图 1 | 生成图 2 | 生成图 3 |
+| --- | --- | --- | --- |
+| ![](assets/showcase/car_original_resized.png) | ![](assets/showcase/car_generated_1.png) | ![](assets/showcase/car_generated_2.png) | ![](assets/showcase/car_generated_3.png) |
+
+### 组 3
+
+| 原图 | 生成图 1 | 生成图 2 | 生成图 3 |
+| --- | --- | --- | --- |
+| ![](assets/showcase/city_original_resized.png) | ![](assets/showcase/city_generated_1.png) | ![](assets/showcase/city_generated_2.png) | ![](assets/showcase/city_generated_3.png) |
 
 ---
 
@@ -64,26 +88,18 @@ http://127.0.0.1:7860
 
 ---
 
-## 4. LoRA 权重下载与放置（GitHub Release）
+## 4. LoRA 权重说明（版权）
 
-为避免超出 GitHub 单文件大小限制，仓库**不直接包含** `loras/*.safetensors`。  
-请先从项目的 GitHub Release 下载 LoRA 压缩包，再解压到 `loras/` 目录。
+出于艺术家版权与模型分发合规考虑，仓库**不提供**任何 `loras/*.safetensors` 文件，也不提供下载链接。  
+你可以自行训练 LoRA 权重，并将文件放置到 `loras/` 目录后再运行本项目。
+请确保 LoRA 是基于 `Stable Diffusion v1.5` 训练或明确兼容 `SD v1.5`。
 
-推荐流程：
+将 LoRA 文件保存到 `loras/` 目录下即可。
 
-1. 打开本项目 Releases 页面并下载 LoRA 压缩包（例如 `loras.zip`）
-2. 在项目根目录解压：
+训练与参数参考仍以本文档当前内容为准，重点可参考：
 
-```bash
-unzip loras.zip -d .
-```
-
-3. 确认权重文件位于以下路径：
-   - `loras/loish_style.safetensors`
-   - `loras/michal_sawtyruk_style.safetensors`
-   - `loras/neil_ross_style.safetensors`
-
-4. 再启动 Web UI 或脚本进行生成
+- `7. LoRA 使用建议`
+- `8. LoRA 训练参考`
 
 ---
 
@@ -111,13 +127,8 @@ python generate_images.py
 
 ## 7. LoRA 使用建议
 
-以下为当前项目中验证过的推荐参数起点，可按效果微调。
+以下为通用参数建议，可作为起点后按场景微调。
 
-### 7.1 Loish Style
-
-- Prompt 倾向：`loish style, woman, digital art, concept art, high detail`
-- 可增加风格词：`painting`（偏厚涂、偏奇幻）
-- 推荐 Seed：`51717`、`411936`
 - 推荐参数：
   - `num_inference_steps=30`
   - `guidance_scale=3`
@@ -126,29 +137,10 @@ python generate_images.py
   - `controlnet_conditioning_scale=0.8`
   - `guess_mode=False`
   - `lora_scale=0.8`
-
-### 7.2 Neil Ross Style
-
-- Prompt 倾向：`neil_ross_style, [scene description], digital art, concept art, neil_ross_style, high detail`
-- 可增加风格词：`painting`
-- 推荐参数：
-  - `num_inference_steps=45`
-  - `guidance_scale=3`
-  - `num_images_per_prompt=1`
-  - `controlnet_conditioning_scale=0.8`
-  - `guess_mode=False`
-  - `lora_scale=0.8`
-
-### 7.3 Michal Sawtyruk Style
-
-- Prompt 倾向：`michal_sawtyruk_style, [scene description]`
-- 推荐参数：
-  - `num_inference_steps=45`
-  - `guidance_scale=3`
-  - `num_images_per_prompt=1`
-  - `controlnet_conditioning_scale=0.8`
-  - `guess_mode=False`
-  - `lora_scale=0.8`
+- 参数说明：
+  - 上述组合可让 ControlNet 更稳定地遵循原始草稿结构，同时叠加你指定的 LoRA 风格进行生成。
+  - `guess_mode=False` + 合理的 `controlnet_conditioning_scale` 有助于减少结构漂移与细节幻觉。
+  - 对复杂度较高的场景，可将 `num_inference_steps` 提升至 `45` 或 `60` 以增强稳定性与细节还原。
 
 ---
 

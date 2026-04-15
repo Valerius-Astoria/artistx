@@ -48,6 +48,9 @@
         {% if error %}
         <div class="alert error">{{ error }}</div>
         {% endif %}
+        {% if not lora_options %}
+        <div class="alert error">No LoRA files found in <code>loras/</code>. Add a <code>.safetensors</code> file first.</div>
+        {% endif %}
 
         <form method="post" enctype="multipart/form-data" class="form-grid">
           <label>
@@ -57,7 +60,7 @@
 
           <label>
             LoRA style
-            <select name="lora_name" required>
+            <select name="lora_name" required {% if not lora_options %}disabled{% endif %}>
               {% for option in lora_options %}
               <option value="{{ option }}" {% if form.lora_name == option %}selected{% endif %}>
                 {{ option }}
@@ -124,7 +127,7 @@
           </label>
 
           <div class="full">
-            <button type="submit">Generate</button>
+            <button type="submit" {% if not lora_options %}disabled{% endif %}>Generate</button>
           </div>
         </form>
       </section>

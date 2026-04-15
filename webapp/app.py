@@ -23,12 +23,6 @@ SKETCH_DIR.mkdir(parents=True, exist_ok=True)
 LORA_DIR.mkdir(parents=True, exist_ok=True)
 
 
-DEFAULT_LORA_OPTIONS = [
-    "loish_style.safetensors",
-    "michal_sawtyruk_style.safetensors",
-    "neil_ross_style.safetensors",
-]
-
 SHOWCASE = [
     {
         "title": "Loish Style",
@@ -68,15 +62,7 @@ class GenerationForm:
 
 
 def _get_lora_options() -> list[str]:
-    discovered = sorted([item.name for item in LORA_DIR.glob("*.safetensors")])
-    if not discovered:
-        return DEFAULT_LORA_OPTIONS
-
-    all_options = discovered.copy()
-    for fallback in DEFAULT_LORA_OPTIONS:
-        if fallback not in all_options:
-            all_options.append(fallback)
-    return all_options
+    return sorted([item.name for item in LORA_DIR.glob("*.safetensors")])
 
 
 def _parse_form_data() -> GenerationForm:
@@ -98,6 +84,17 @@ def _parse_form_data() -> GenerationForm:
         lora_scale=float(request.form.get("lora_scale", 0.8)),
         lora_name=request.form.get("lora_name", "").strip(),
     )
+
+
+def _validate_lora_selection(selected_name: str, lora_options: list[str]) -> None:
+    if not lora_options:
+        raise ValueError("No LoRA files found in loras/. Add your .safetensors file first.")
+
+    if not selected_name:
+        raise ValueError("Please choose a LoRA file from loras/ before generating.")
+
+    if selected_name not in lora_options:
+        raise ValueError(f"Selected LoRA is unavailable: {selected_name}")
 
 
 def _is_allowed_upload(filename: str) -> bool:
@@ -176,13 +173,15 @@ def index() -> str:
 
     if request.method == "POST":
         try:
+            form = _parse_form_data()
+            _validate_lora_selection(form.lora_name, lora_options)
+
             upload_path, upload_error = _save_uploaded_image()
             if upload_error:
                 raise ValueError(upload_error)
             if upload_path is None:
                 raise ValueError("Image upload failed.")
 
-            form = _parse_form_data()
             before = _collect_generated_image_names()
 
             generate_images(

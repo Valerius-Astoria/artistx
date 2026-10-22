@@ -1,38 +1,38 @@
 # ArtistX
 
-基于 Stable Diffusion v1.5 + ControlNet Lineart + LoRA 的风格化图像生成项目。  
-你可以上传原图，选择 LoRA 风格，并快速生成具有特定艺术风格的结果。
+这是我基于 Stable Diffusion v1.5 Lineart，通过引入 LoRA 矩阵，实现的个性化图片风格转换器。
 
-> 开始前必做：先将你自己的 LoRA 文件（`.safetensors`）放入 `loras/` 目录，再到 `generate_images.py` 的 `main()` 中修改 `lora_name` 与提示词参数。
->
-> 重要：本项目基座模型为 `Stable Diffusion v1.5`，你使用的 LoRA 必须与 `SD v1.5` 适配，否则可能出现风格失效、画面异常或生成失败。
+## 基本原理
 
-项目提供：
-- 脚本方式生成（`generate_images.py`）
-- 本地 Web UI 交互生成（`run_web.py`）
-- LoRA 条件生成示例流程
+Stable Diffusion v1.5 为一个开源图像生成模型，通过接受文字输入，生成与之对应的图像。该机制的缺点在于，模型能力弱，幻觉重，生成图像的结构与风格不可控。为解决这一问题，我引入令一额外输入----图像草稿，通过允许用户控制生成图像的结构，以减轻幻觉严重的问题。在此基础上，我根据不同艺术家的历史作品，训练出3份不同风格的 LoRA，在分别将它们嵌于图像生成模型的末尾后，我得到具有特定艺术家风格的生成图像。
 
-## 效果展示（3组：1张原图 + 3张生成图）
+## 项目说明
 
-### 组 1
+出于版权问题，本项目不提供任何艺术家 LoRA 文件，请参考“LoRA 训练参考”以自行训练 LoRA，并将其保存至 /loras 路径下。接下来，请遵循“环境准备”与“快速开始”目录下的说明，以通过 Web 界面生成具有特定艺术家风格的图像。
 
-| 原图 | 生成图 1 | 生成图 2 | 生成图 3 |
-| --- | --- | --- | --- |
+## 作品展示
+
+
+| 原图                                              | 生成图 1                                      | 生成图 2                                      | 生成图 3                                      |
+| ----------------------------------------------- | ------------------------------------------ | ------------------------------------------ | ------------------------------------------ |
 | ![](assets/showcase/megan_original_resized.png) | ![](assets/showcase/megan_generated_1.png) | ![](assets/showcase/megan_generated_2.png) | ![](assets/showcase/megan_generated_3.png) |
 
-### 组 2
 
-| 原图 | 生成图 1 | 生成图 2 | 生成图 3 |
-| --- | --- | --- | --- |
+
+| 原图                                            | 生成图 1                                    | 生成图 2                                    | 生成图 3                                    |
+| --------------------------------------------- | ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
 | ![](assets/showcase/car_original_resized.png) | ![](assets/showcase/car_generated_1.png) | ![](assets/showcase/car_generated_2.png) | ![](assets/showcase/car_generated_3.png) |
 
-### 组 3
 
-| 原图 | 生成图 1 | 生成图 2 | 生成图 3 |
-| --- | --- | --- | --- |
+
+| 原图                                             | 生成图 1                                     | 生成图 2                                     | 生成图 3                                     |
+| ---------------------------------------------- | ----------------------------------------- | ----------------------------------------- | ----------------------------------------- |
 | ![](assets/showcase/city_original_resized.png) | ![](assets/showcase/city_generated_1.png) | ![](assets/showcase/city_generated_2.png) | ![](assets/showcase/city_generated_3.png) |
 
+
 ---
+
+
 
 ## 1. 环境准备
 
@@ -52,6 +52,8 @@ conda activate artistx
 
 ---
 
+
+
 ## 2. 目录说明
 
 - `data/input_images`：用户上传或输入的原图
@@ -61,6 +63,8 @@ conda activate artistx
 - `webapp`：Web UI 前端与后端页面逻辑
 
 ---
+
+
 
 ## 3. 快速开始（推荐：Web UI）
 
@@ -77,33 +81,22 @@ http://127.0.0.1:7860
 ```
 
 在页面中可完成以下流程：
+
 1. 上传原图（会保存到 `data/input_images`）
 2. 选择 LoRA 风格（读取 `loras` 中权重）
 3. 设置生成参数（`Num` 为循环生成次数）
 4. 浏览生成结果并下载到本地（图片保存到 `data/generated_images`）
 
 > Seed 逻辑：  
+>
 > - 留空：每轮随机新 seed（结果更有变化）  
 > - 填写具体值：每轮固定同一 seed（结果可复现）
 
 ---
 
-## 4. LoRA 权重说明（版权）
 
-出于艺术家版权与模型分发合规考虑，仓库**不提供**任何 `loras/*.safetensors` 文件，也不提供下载链接。  
-你可以自行训练 LoRA 权重，并将文件放置到 `loras/` 目录后再运行本项目。
-请确保 LoRA 是基于 `Stable Diffusion v1.5` 训练或明确兼容 `SD v1.5`。
 
-将 LoRA 文件保存到 `loras/` 目录下即可。
-
-训练与参数参考仍以本文档当前内容为准，重点可参考：
-
-- `7. LoRA 使用建议`
-- `8. LoRA 训练参考`
-
----
-
-## 5. 脚本方式生成
+## 4. 脚本方式生成
 
 你也可以直接修改 `generate_images.py` 中 `main()` 的参数后运行：
 
@@ -115,7 +108,9 @@ python generate_images.py
 
 ---
 
-## 6. 运行与性能说明
+
+
+## 5. 运行与性能说明
 
 - 优先使用 GPU；若无 GPU 会自动回退到 CPU
 - 速度参考：
@@ -125,7 +120,9 @@ python generate_images.py
 
 ---
 
-## 7. LoRA 使用建议
+
+
+## 6. LoRA 使用建议
 
 以下为通用参数建议，可作为起点后按场景微调。
 
@@ -144,7 +141,10 @@ python generate_images.py
 
 ---
 
-## 8. LoRA 训练参考
+
+
+## 7. LoRA 训练参考
 
 - [kohya_ss](https://github.com/bmaltais/kohya_ss)
 - [How to train Stable Diffusion LoRA models](https://techtactician.com/how-to-train-stable-diffusion-lora-models/)
+
